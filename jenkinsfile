@@ -1,0 +1,37 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('git checkout') {
+            steps {
+                git branch: 'main', credentialsId: '21814cba-b1d5-48ac-8eb6-0797558a6b8d', url: 'https://github.com/sahurishi16/demo_pipeline.git'
+            }
+        }
+        stage('test') {
+            steps {
+                sh 'mvn test'
+            }
+        }
+        stage('sonarqube') {
+            steps {
+                withSonarQubeEnv('sonarqube') {
+                    sh 'mvn clean verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar'
+                }
+            }
+        }
+        
+        stage('package') {
+            steps {
+                sh 'mvn package'
+            }
+        }
+        stage('mail') {
+            steps {
+                mail bcc: '', body: 'build is complete', cc: '', from: '', replyTo: '', subject: 'build complete', to: 'rishisahu1604@gmail.com'
+            }
+        }
+        
+        
+        
+    }
+}
